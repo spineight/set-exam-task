@@ -36,11 +36,8 @@ elseif (NOT MSVC)
 endif()
 
 add_executable(set_testing
-    set.h
     set_tests.cpp
-    element.h
-    element.cpp
-    fault_injection.h
-    fault_injection.cpp)
+    test-helpers/element.cpp
+    test-helpers/fault_injection.cpp)
 
 target_link_libraries(set_testing gtest)

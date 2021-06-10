@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 #include <sstream>
 
-#include "set.h"
-#include "element.h"
-#include "fault_injection.h"
+#include "test-helpers/set.h"
+#include "test-helpers/element.h"
+#include "test-helpers/fault_injection.h"
 
 using container = set<element>;
 
