@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <sstream>
 
-#include "test-helpers/set.h"
+#include "set.h"
 #include "test-helpers/element.h"
 #include "test-helpers/fault_injection.h"
 
