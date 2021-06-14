@@ -239,6 +239,17 @@ TEST(correctness, iterator_default_ctor)
     EXPECT_EQ(1, *j);
 }
 
+TEST(correctness, iterator_decrement_end)
+{
+    element::no_new_instances_guard g;
+
+    container s;
+    container::const_iterator i = s.end();
+    s.insert(42);
+    --i;
+    EXPECT_EQ(42, *i);
+}
+
 TEST(correctness, insert_simple)
 {
     element::no_new_instances_guard g;
