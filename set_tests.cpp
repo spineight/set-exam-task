@@ -224,6 +224,22 @@ TEST(correctness, iterators_decrement)
     EXPECT_EQ(s.begin(), i);
 }
 
+TEST(correctness, iterators_decrement_2)
+{
+    element::no_new_instances_guard g;
+
+    container s;
+    mass_insert(s, {5, 2, 10, 9, 12, 7});
+    container::iterator i = s.end();
+    EXPECT_EQ(12, *--i);
+    EXPECT_EQ(10, *--i);
+    EXPECT_EQ(9, *--i);
+    EXPECT_EQ(7, *--i);
+    EXPECT_EQ(5, *--i);
+    EXPECT_EQ(2, *--i);
+    EXPECT_EQ(s.begin(), i);
+}
+
 TEST(correctness, iterator_default_ctor)
 {
     element::no_new_instances_guard g;
