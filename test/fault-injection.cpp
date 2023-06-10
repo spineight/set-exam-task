@@ -1,4 +1,4 @@
-#include "fault_injection.h"
+#include "fault-injection.h"
 
 #include <sys/mman.h>
 

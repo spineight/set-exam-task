@@ -1,6 +1,6 @@
 #include "element.h"
 
-#include "fault_injection.h"
+#include "fault-injection.h"
 
 #include <gtest/gtest.h>
 
