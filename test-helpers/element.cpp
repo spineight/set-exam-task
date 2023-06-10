@@ -1,5 +1,7 @@
 #include "element.h"
+
 #include "fault_injection.h"
+
 #include <gtest/gtest.h>
 
 element::element(int data) : data(data) {
@@ -7,7 +9,7 @@ element::element(int data) : data(data) {
   EXPECT_TRUE(p.second);
 }
 
-element::element(element const& other) : data(other.data) {
+element::element(const element& other) : data(other.data) {
   auto p = instances.insert(this);
   EXPECT_TRUE(p.second);
 }
@@ -17,7 +19,7 @@ element::~element() {
   EXPECT_EQ(1u, n);
 }
 
-element& element::operator=(element const& c) {
+element& element::operator=(const element& c) {
   EXPECT_TRUE(instances.find(this) != instances.end());
 
   data = c.data;
@@ -30,100 +32,99 @@ element::operator int() const {
   return data;
 }
 
-bool operator==(element const& a, element const& b) {
+bool operator==(const element& a, const element& b) {
   fault_injection_point();
   return a.data == b.data;
 }
 
-bool operator!=(element const& a, element const& b) {
+bool operator!=(const element& a, const element& b) {
   fault_injection_point();
   return a.data != b.data;
 }
 
-bool operator<(element const& a, element const& b) {
+bool operator<(const element& a, const element& b) {
   fault_injection_point();
   return a.data < b.data;
 }
 
-bool operator<=(element const& a, element const& b) {
+bool operator<=(const element& a, const element& b) {
   fault_injection_point();
   return a.data <= b.data;
 }
 
-bool operator>(element const& a, element const& b) {
+bool operator>(const element& a, const element& b) {
   fault_injection_point();
   return a.data > b.data;
 }
 
-bool operator>=(element const& a, element const& b) {
+bool operator>=(const element& a, const element& b) {
   fault_injection_point();
   return a.data >= b.data;
 }
 
-bool operator==(element const& a, int b) {
+bool operator==(const element& a, int b) {
   fault_injection_point();
   return a.data == b;
 }
 
-bool operator!=(element const& a, int b) {
+bool operator!=(const element& a, int b) {
   fault_injection_point();
   return a.data != b;
 }
 
-bool operator<(element const& a, int b) {
+bool operator<(const element& a, int b) {
   fault_injection_point();
   return a.data < b;
 }
 
-bool operator<=(element const& a, int b) {
+bool operator<=(const element& a, int b) {
   fault_injection_point();
   return a.data <= b;
 }
 
-bool operator>(element const& a, int b) {
+bool operator>(const element& a, int b) {
   fault_injection_point();
   return a.data > b;
 }
 
-bool operator>=(element const& a, int b) {
+bool operator>=(const element& a, int b) {
   fault_injection_point();
   return a.data >= b;
 }
 
-bool operator==(int a, element const& b) {
+bool operator==(int a, const element& b) {
   fault_injection_point();
   return a == b.data;
 }
 
-bool operator!=(int a, element const& b) {
+bool operator!=(int a, const element& b) {
   fault_injection_point();
   return a != b.data;
 }
 
-bool operator<(int a, element const& b) {
+bool operator<(int a, const element& b) {
   fault_injection_point();
   return a < b.data;
 }
 
-bool operator<=(int a, element const& b) {
+bool operator<=(int a, const element& b) {
   fault_injection_point();
   return a <= b.data;
 }
 
-bool operator>(int a, element const& b) {
+bool operator>(int a, const element& b) {
   fault_injection_point();
   return a > b.data;
 }
 
-bool operator>=(int a, element const& b) {
+bool operator>=(int a, const element& b) {
   fault_injection_point();
   return a >= b.data;
 }
 
-std::set<element const*> element::instances;
+std::set<const element*> element::instances;
 
-element::no_new_instances_guard::no_new_instances_guard()
-    : old_instances(instances) {}
+element::no_new_instances_guard::no_new_instances_guard() : old_instances(instances) {}
 
 element::no_new_instances_guard::~no_new_instances_guard() {
   EXPECT_TRUE(old_instances == instances);

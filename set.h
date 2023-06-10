@@ -9,27 +9,53 @@ struct set {
   using reverse_iterator = std::reverse_iterator<iterator>;
   using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-  set();                            // O(1) nothrow
-  set(set const& other);            // O(n) strong
-  set& operator=(set const& other); // O(n) strong
-  ~set();                           // O(n) nothrow
+  // O(1) nothrow
+  set();
 
-  void clear(); // O(n) nothrow
-  bool empty(); // O(1) nothrow
+  // O(n) strong
+  set(const set& other);
 
-  const_iterator begin() const; //      nothrow
-  const_iterator end() const;   //      nothrow
+  // O(n) strong
+  set& operator=(const set& other);
 
-  const_reverse_iterator rbegin() const; //      nothrow
-  const_reverse_iterator rend() const;   //      nothrow
+  // O(n) nothrow
+  ~set();
 
-  std::pair<iterator, bool> insert(T const&); // O(h) strong
-  iterator erase(iterator);                   // O(h) nothrow
-  const_iterator find(T const&) const;        // O(h) strong
-  const_iterator lower_bound(T const&) const; // O(h) strong
-  const_iterator upper_bound(T const&) const; // O(h) strong
+  // O(n) nothrow
+  void clear();
 
-  void swap(set& other); // O(1) nothrow
+  // O(1) nothrow
+  bool empty();
+
+  // nothrow
+  const_iterator begin() const;
+
+  // nothrow
+  const_iterator end() const;
+
+  // nothrow
+  const_reverse_iterator rbegin() const;
+
+  // nothrow
+  const_reverse_iterator rend() const;
+
+  // O(h) strong
+  std::pair<iterator, bool> insert(const T&);
+
+  // O(h) nothrow
+  iterator erase(iterator);
+
+  // O(h) strong
+  const_iterator find(const T&) const;
+
+  // O(h) strong
+  const_iterator lower_bound(const T&) const;
+
+  // O(h) strong
+  const_iterator upper_bound(const T&) const;
+
+  // O(1) nothrow
+  void swap(set& other);
 };
 
 template <typename T>
@@ -37,17 +63,26 @@ struct set<T>::iterator {
   using iterator_category = std::bidirectional_iterator_tag;
   using difference_type = std::ptrdiff_t;
   using value_type = T const;
-  using pointer = T const*;
-  using reference = T const&;
+  using pointer = const T*;
+  using reference = const T&;
 
   iterator() = default;
 
-  reference operator*() const; // O(1) nothrow
-  pointer operator->() const;  // O(1) nothrow
+  // O(1) nothrow
+  reference operator*() const;
 
-  iterator& operator++() &;   //      nothrow
-  iterator operator++(int) &; //      nothrow
+  // O(1) nothrow
+  pointer operator->() const;
 
-  iterator& operator--() &;   //      nothrow
-  iterator operator--(int) &; //      nothrow
+  // nothrow
+  iterator& operator++() &;
+
+  // nothrow
+  iterator operator++(int) &;
+
+  // nothrow
+  iterator& operator--() &;
+
+  // nothrow
+  iterator operator--(int) &;
 };

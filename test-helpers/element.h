@@ -7,49 +7,49 @@ struct element {
 
   element() = delete;
   element(int data);
-  element(element const& other);
+  element(const element& other);
   ~element();
 
-  element& operator=(element const& c);
+  element& operator=(const element& c);
   operator int() const;
 
 private:
   int data;
 
-  friend bool operator==(element const& a, element const& b);
-  friend bool operator!=(element const& a, element const& b);
-  friend bool operator<(element const& a, element const& b);
-  friend bool operator<=(element const& a, element const& b);
-  friend bool operator>(element const& a, element const& b);
-  friend bool operator>=(element const& a, element const& b);
+  friend bool operator==(const element& a, const element& b);
+  friend bool operator!=(const element& a, const element& b);
+  friend bool operator<(const element& a, const element& b);
+  friend bool operator<=(const element& a, const element& b);
+  friend bool operator>(const element& a, const element& b);
+  friend bool operator>=(const element& a, const element& b);
 
-  friend bool operator==(element const& a, int b);
-  friend bool operator!=(element const& a, int b);
-  friend bool operator<(element const& a, int b);
-  friend bool operator<=(element const& a, int b);
-  friend bool operator>(element const& a, int b);
-  friend bool operator>=(element const& a, int b);
+  friend bool operator==(const element& a, int b);
+  friend bool operator!=(const element& a, int b);
+  friend bool operator<(const element& a, int b);
+  friend bool operator<=(const element& a, int b);
+  friend bool operator>(const element& a, int b);
+  friend bool operator>=(const element& a, int b);
 
-  friend bool operator==(int a, element const& b);
-  friend bool operator!=(int a, element const& b);
-  friend bool operator<(int a, element const& b);
-  friend bool operator<=(int a, element const& b);
-  friend bool operator>(int a, element const& b);
-  friend bool operator>=(int a, element const& b);
+  friend bool operator==(int a, const element& b);
+  friend bool operator!=(int a, const element& b);
+  friend bool operator<(int a, const element& b);
+  friend bool operator<=(int a, const element& b);
+  friend bool operator>(int a, const element& b);
+  friend bool operator>=(int a, const element& b);
 
-  static std::set<element const*> instances;
+  static std::set<const element*> instances;
 };
 
 struct element::no_new_instances_guard {
   no_new_instances_guard();
 
-  no_new_instances_guard(no_new_instances_guard const&) = delete;
-  no_new_instances_guard& operator=(no_new_instances_guard const&) = delete;
+  no_new_instances_guard(const no_new_instances_guard&) = delete;
+  no_new_instances_guard& operator=(const no_new_instances_guard&) = delete;
 
   ~no_new_instances_guard();
 
   void expect_no_instances();
 
 private:
-  std::set<element const*> old_instances;
+  std::set<const element*> old_instances;
 };

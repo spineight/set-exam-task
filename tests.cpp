@@ -1,40 +1,42 @@
-#include <gtest/gtest.h>
-#include <sstream>
-
 #include "set.h"
 #include "test-helpers/element.h"
 #include "test-helpers/fault_injection.h"
 
+#include <gtest/gtest.h>
+
+#include <sstream>
+
 using container = set<element>;
 
 template <typename T>
-T const& as_const(T& obj) {
+const T& as_const(T& obj) {
   return obj;
 }
 
 template <typename C, typename T>
 void mass_insert(C& c, std::initializer_list<T> elems) {
-  for (T const& e : elems)
+  for (const T& e : elems) {
     c.insert(e);
+  }
 }
 
 template <typename It, typename T>
 void expect_eq(It i1, It e1, std::initializer_list<T> elems) {
-  std::vector<typename std::remove_const<
-      typename std::iterator_traits<It>::value_type>::type>
-      vals;
+  std::vector<typename std::remove_const<typename std::iterator_traits<It>::value_type>::type> vals;
 
-  for (; i1 != e1; ++i1)
+  for (; i1 != e1; ++i1) {
     vals.push_back(*i1);
+  }
 
   if (!std::equal(vals.begin(), vals.end(), elems.begin(), elems.end())) {
     std::stringstream ss;
     ss << '{';
 
     bool add_comma = false;
-    for (auto const& e : vals) {
-      if (add_comma)
+    for (const auto& e : vals) {
+      if (add_comma) {
         ss << ", ";
+      }
       ss << e;
       add_comma = true;
     }
@@ -42,9 +44,10 @@ void expect_eq(It i1, It e1, std::initializer_list<T> elems) {
     ss << "} != {";
 
     add_comma = false;
-    for (auto const& e : elems) {
-      if (add_comma)
+    for (const auto& e : elems) {
+      if (add_comma) {
         ss << ", ";
+      }
       ss << e;
       add_comma = true;
     }
@@ -56,12 +59,12 @@ void expect_eq(It i1, It e1, std::initializer_list<T> elems) {
 }
 
 template <typename C, typename T>
-void expect_eq(C const& c, std::initializer_list<T> elems) {
+void expect_eq(const C& c, std::initializer_list<T> elems) {
   expect_eq(c.begin(), c.end(), elems);
 }
 
 template <typename C, typename T>
-void expect_reverse_eq(C const& c, std::initializer_list<T> elems) {
+void expect_reverse_eq(const C& c, std::initializer_list<T> elems) {
   expect_eq(c.rbegin(), c.rend(), elems);
 }
 
@@ -440,7 +443,7 @@ void magic(element& c) {
   c = 42;
 }
 
-void magic(element const& c) {}
+void magic(const element& c) {}
 
 TEST(correctness, iterator_deref_2) {
   element::no_new_instances_guard g;
