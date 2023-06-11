@@ -7,6 +7,10 @@
 
 namespace {
 
+class correctness_test : public base_test {};
+
+class exception_safety_test : public base_test {};
+
 void magic([[maybe_unused]] element& c) {
   c = 42;
 }
@@ -15,50 +19,38 @@ void magic(const element&) {}
 
 } // namespace
 
-TEST(correctness, single_element) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, single_element) {
   container c;
   c.insert(42);
 }
 
-TEST(correctness, insert) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, insert) {
   container c;
   mass_insert(c, {1, 2, 3, 4});
   expect_eq(c, {1, 2, 3, 4});
 }
 
-TEST(correctness, copy_ctor) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, copy_ctor) {
   container c;
   mass_insert(c, {1, 2, 3, 4});
   container c2 = c;
   expect_eq(c2, {1, 2, 3, 4});
 }
 
-TEST(correctness, copy_ctor_2) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, copy_ctor_2) {
   container c;
   mass_insert(c, {3, 4, 2, 5, 1});
   container c2 = c;
   expect_eq(c2, {1, 2, 3, 4, 5});
 }
 
-TEST(correctness, copy_ctor_empty) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, copy_ctor_empty) {
   container c;
   container c2 = c;
   EXPECT_TRUE(c2.empty());
 }
 
-TEST(correctness, assignment_operator) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, copy_assignment) {
   container c;
   mass_insert(c, {1, 2, 3, 4});
   container c2;
@@ -67,18 +59,14 @@ TEST(correctness, assignment_operator) {
   expect_eq(c2, {1, 2, 3, 4});
 }
 
-TEST(correctness, self_assignment) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, copy_assignment_self) {
   container c;
   mass_insert(c, {1, 2, 3, 4});
   c = c;
   expect_eq(c, {1, 2, 3, 4});
 }
 
-TEST(correctness, empty) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, empty) {
   container c;
   EXPECT_EQ(c.begin(), c.end());
   EXPECT_TRUE(c.empty());
@@ -90,9 +78,7 @@ TEST(correctness, empty) {
   EXPECT_TRUE(c.empty());
 }
 
-TEST(correctness, reverse_iterators) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, reverse_iterators) {
   container c;
   mass_insert(c, {3, 1, 2, 4});
   expect_eq(reverse_view(c), {4, 3, 2, 1});
@@ -102,9 +88,7 @@ TEST(correctness, reverse_iterators) {
   EXPECT_EQ(1, *std::prev(c.rend()));
 }
 
-TEST(correctness, iterator_conversions) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, iterator_conversions) {
   container c;
   container::const_iterator i1 = c.begin();
   container::iterator i2 = c.end();
@@ -118,9 +102,7 @@ TEST(correctness, iterator_conversions) {
   EXPECT_FALSE(i2 != i2);
 }
 
-TEST(correctness, iterators_postfix) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, iterators_postfix) {
   container s;
   mass_insert(s, {1, 2, 3});
   container::iterator i = s.begin();
@@ -139,9 +121,7 @@ TEST(correctness, iterators_postfix) {
   EXPECT_EQ(s.end(), j);
 }
 
-TEST(correctness, iterators_decrement) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, iterators_decrement) {
   container s;
   mass_insert(s, {5, 3, 8, 1, 2, 6, 7, 10});
   container::iterator i = s.end();
@@ -156,9 +136,7 @@ TEST(correctness, iterators_decrement) {
   EXPECT_EQ(s.begin(), i);
 }
 
-TEST(correctness, iterators_decrement_2) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, iterators_decrement_2) {
   container s;
   mass_insert(s, {5, 2, 10, 9, 12, 7});
   container::iterator i = s.end();
@@ -171,9 +149,7 @@ TEST(correctness, iterators_decrement_2) {
   EXPECT_EQ(s.begin(), i);
 }
 
-TEST(correctness, iterator_default_ctor) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, iterator_default_ctor) {
   container::iterator i;
   container::const_iterator j;
   container s;
@@ -185,9 +161,7 @@ TEST(correctness, iterator_default_ctor) {
   EXPECT_EQ(1, *j);
 }
 
-TEST(correctness, iterator_decrement_end) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, iterator_decrement_end) {
   container s;
   container::const_iterator i = s.end();
   s.insert(42);
@@ -195,25 +169,19 @@ TEST(correctness, iterator_decrement_end) {
   EXPECT_EQ(42, *i);
 }
 
-TEST(correctness, insert_simple) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, insert_simple) {
   container c;
   mass_insert(c, {8, 4, 2, 10, 5});
   expect_eq(c, {2, 4, 5, 8, 10});
 }
 
-TEST(correctness, insert_duplicates) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, insert_duplicates) {
   container c;
   mass_insert(c, {8, 4, 2, 4, 4, 4});
   expect_eq(c, {2, 4, 8});
 }
 
-TEST(correctness, reinsert) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, reinsert) {
   container c;
   mass_insert(c, {6, 2, 3, 1, 9, 8});
   c.erase(c.find(6));
@@ -221,99 +189,77 @@ TEST(correctness, reinsert) {
   expect_eq(c, {1, 2, 3, 6, 8, 9});
 }
 
-TEST(correctness, erase_begin) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, erase_begin) {
   container c;
   mass_insert(c, {1, 2, 3, 4});
   c.erase(c.begin());
   expect_eq(c, {2, 3, 4});
 }
 
-TEST(correctness, erase_middle) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, erase_middle) {
   container c;
   mass_insert(c, {1, 2, 3, 4});
   c.erase(std::next(c.begin(), 2));
   expect_eq(c, {1, 2, 4});
 }
 
-TEST(correctness, erase_close_to_end) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, erase_close_to_end) {
   container c;
   mass_insert(c, {6, 1, 4, 3, 2, 5});
   c.erase(std::next(c.begin(), 4));
   expect_eq(c, {1, 2, 3, 4, 6});
 }
 
-TEST(correctness, erase_end) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, erase_end) {
   container c;
   mass_insert(c, {1, 2, 3, 4});
   c.erase(std::prev(c.end()));
   expect_eq(c, {1, 2, 3});
 }
 
-TEST(correctness, erase_root) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, erase_root) {
   container c;
   mass_insert(c, {5, 3, 8, 1, 2});
   c.erase(c.find(5));
   expect_eq(c, {1, 2, 3, 8});
 }
 
-TEST(correctness, erase_1) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, erase_1) {
   container c;
   mass_insert(c, {5, 3, 8, 1, 2, 7, 9, 10, 11, 12});
   c.erase(c.find(8));
   expect_eq(c, {1, 2, 3, 5, 7, 9, 10, 11, 12});
 }
 
-TEST(correctness, erase_2) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, erase_2) {
   container c;
   mass_insert(c, {5, 3, 17, 15, 20, 19, 18});
   c.erase(c.find(17));
   expect_eq(c, {3, 5, 15, 18, 19, 20});
 }
 
-TEST(correctness, erase_3) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, erase_3) {
   container c;
   mass_insert(c, {10, 5, 15, 14, 13});
   c.erase(c.find(15));
   expect_eq(c, {5, 10, 13, 14});
 }
 
-TEST(correctness, erase_4) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, erase_4) {
   container c;
   mass_insert(c, {10, 5, 15, 3, 4});
   c.erase(c.find(5));
   expect_eq(c, {3, 4, 10, 15});
 }
 
-TEST(correctness, erase_5) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, erase_5) {
   container c;
   mass_insert(c, {5, 2, 10, 6, 14, 7, 8});
   c.erase(c.find(5));
   expect_eq(c, {2, 6, 7, 8, 10, 14});
 }
 
-TEST(correctness, erase_6) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, erase_6) {
   container c;
   mass_insert(c, {7, 3, 2, 6, 10, 9});
   c.erase(c.find(3));
@@ -325,9 +271,7 @@ TEST(correctness, erase_6) {
   EXPECT_TRUE(c.empty());
 }
 
-TEST(correctness, erase_7) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, erase_7) {
   container c;
   mass_insert(c, {5, 3, 8});
   c.erase(c.find(5));
@@ -335,18 +279,14 @@ TEST(correctness, erase_7) {
   EXPECT_FALSE(c.empty());
 }
 
-TEST(correctness, erase_8) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, erase_8) {
   container c;
   mass_insert(c, {5, 3});
   c.erase(c.find(5));
   expect_eq(c, {3});
 }
 
-TEST(correctness, erase_iterator_invalidation) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, erase_iterator_invalidation) {
   container c;
   mass_insert(c, {8, 2, 6, 10, 3, 1, 9, 7});
   container::iterator i = c.find(8);
@@ -355,9 +295,7 @@ TEST(correctness, erase_iterator_invalidation) {
   EXPECT_EQ(9, *j);
 }
 
-TEST(correctness, erase_return_value) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, erase_return_value) {
   container c;
   mass_insert(c, {7, 4, 10, 1, 8, 12});
   container::iterator i = c.find(7);
@@ -365,9 +303,7 @@ TEST(correctness, erase_return_value) {
   EXPECT_EQ(8, *i);
 }
 
-TEST(correctness, clear) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, clear) {
   container c;
   mass_insert(c, {1, 2, 3, 4, 5, 6});
   EXPECT_FALSE(c.empty());
@@ -377,18 +313,14 @@ TEST(correctness, clear) {
   EXPECT_EQ(c.end(), c.begin());
 }
 
-TEST(correctness, iterator_deref_1) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, iterator_deref_1) {
   container c;
   mass_insert(c, {1, 2, 3, 4, 5, 6});
   const container::iterator i = c.find(4);
   EXPECT_EQ(4, *i);
 }
 
-TEST(correctness, iterator_deref_2) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, iterator_deref_2) {
   container c;
   mass_insert(c, {1, 2, 3, 4, 5, 6});
   container::iterator i = c.find(4);
@@ -397,9 +329,7 @@ TEST(correctness, iterator_deref_2) {
   expect_eq(c, {1, 2, 3, 4, 5, 6});
 }
 
-TEST(correctness, iterator_deref_3) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, iterator_deref_3) {
   container c;
   mass_insert(c, {1, 2, 3, 4, 5, 6});
   const container::iterator i = c.find(4);
@@ -407,9 +337,7 @@ TEST(correctness, iterator_deref_3) {
   expect_eq(c, {1, 2, 3, 4, 5, 6});
 }
 
-TEST(correctness, swap) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, swap) {
   container c1, c2;
   mass_insert(c1, {1, 2, 3, 4});
   mass_insert(c2, {5, 6, 7, 8});
@@ -418,17 +346,13 @@ TEST(correctness, swap) {
   expect_eq(c2, {1, 2, 3, 4});
 }
 
-TEST(correctness, swap_self) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, swap_self) {
   container c1;
   mass_insert(c1, {1, 2, 3, 4});
   swap(c1, c1);
 }
 
-TEST(correctness, swap_empty) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, swap_empty) {
   container c1, c2;
   mass_insert(c1, {1, 2, 3, 4});
   swap(c1, c2);
@@ -439,23 +363,17 @@ TEST(correctness, swap_empty) {
   EXPECT_TRUE(c2.empty());
 }
 
-TEST(correctness, swap_empty_empty) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, swap_empty_empty) {
   container c1, c2;
   swap(c1, c2);
 }
 
-TEST(correctness, swap_empty_self) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, swap_empty_self) {
   container c1;
   swap(c1, c1);
 }
 
-TEST(correctness, swap_iterator_validity) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, swap_iterator_validity) {
   container c1, c2;
   mass_insert(c1, {1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
   c2.insert(11);
@@ -478,9 +396,7 @@ TEST(correctness, swap_iterator_validity) {
   // EXPECT_EQ(c2_end, c2_begin);
 }
 
-TEST(correctness, swap_1) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, swap_1) {
   container c;
   mass_insert(c, {3, 2, 4, 1});
   container tmp(c);
@@ -488,9 +404,7 @@ TEST(correctness, swap_1) {
   expect_eq(c, {1, 2, 3, 4});
 }
 
-TEST(correctness, swap_iterators_1) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, swap_iterators_1) {
   container c;
   mass_insert(c, {1, 2, 3});
   container c2;
@@ -509,9 +423,7 @@ TEST(correctness, swap_iterators_1) {
   expect_eq(c2, {4, 6});
 }
 
-TEST(correctness, find_in_empty) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, find_in_empty) {
   container c;
 
   EXPECT_EQ(c.end(), c.find(0));
@@ -519,9 +431,7 @@ TEST(correctness, find_in_empty) {
   EXPECT_EQ(c.end(), c.find(42));
 }
 
-TEST(correctness, finds) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, finds) {
   container c;
 
   mass_insert(c, {8, 3, 5, 4, 3, 1, 8, 8, 10, 9});
@@ -540,16 +450,12 @@ TEST(correctness, finds) {
   EXPECT_EQ(c.end(), c.find(11));
 }
 
-TEST(correctness, lower_bound_empty) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, lower_bound_empty) {
   container c;
   EXPECT_EQ(c.end(), c.lower_bound(5));
 }
 
-TEST(correctness, lower_bounds) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, lower_bounds) {
   container c;
 
   mass_insert(c, {8, 3, 5, 4, 3, 1, 8, 8, 10, 9});
@@ -568,9 +474,7 @@ TEST(correctness, lower_bounds) {
   EXPECT_EQ(std::next(c.begin(), 7), c.lower_bound(11));
 }
 
-TEST(correctness, upper_bounds) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, upper_bounds) {
   container c;
 
   mass_insert(c, {8, 3, 5, 4, 3, 1, 8, 8, 10, 9});
@@ -589,14 +493,12 @@ TEST(correctness, upper_bounds) {
   EXPECT_EQ(std::next(c.begin(), 7), c.upper_bound(11));
 }
 
-TEST(correctness, upper_bound_empty) {
-  element::no_new_instances_guard g;
-
+TEST_F(correctness_test, upper_bound_empty) {
   container c;
   EXPECT_EQ(c.end(), c.upper_bound(5));
 }
 
-TEST(fault_injection, non_throwing_default_ctor) {
+TEST_F(exception_safety_test, non_throwing_default_ctor) {
   faulty_run([] {
     try {
       container c;
@@ -608,7 +510,7 @@ TEST(fault_injection, non_throwing_default_ctor) {
   });
 }
 
-TEST(fault_injection, copy_ctor) {
+TEST_F(exception_safety_test, copy_ctor) {
   faulty_run([] {
     container c;
     mass_insert(c, {3, 2, 4, 1});
@@ -618,7 +520,7 @@ TEST(fault_injection, copy_ctor) {
   });
 }
 
-TEST(fault_injection, non_throwing_clear) {
+TEST_F(exception_safety_test, non_throwing_clear) {
   faulty_run([] {
     container c;
     mass_insert(c, {3, 2, 4, 1});
@@ -632,7 +534,7 @@ TEST(fault_injection, non_throwing_clear) {
   });
 }
 
-TEST(fault_injection, assignment_operator) {
+TEST_F(exception_safety_test, copy_assignment) {
   faulty_run([] {
     container c;
     mass_insert(c, {3, 2, 4, 1});
@@ -646,7 +548,7 @@ TEST(fault_injection, assignment_operator) {
   });
 }
 
-TEST(fault_injection, insert) {
+TEST_F(exception_safety_test, insert) {
   faulty_run([] {
     container c;
     mass_insert(c, {3, 2, 4, 1});
@@ -657,7 +559,7 @@ TEST(fault_injection, insert) {
   });
 }
 
-TEST(fault_injection, erase) {
+TEST_F(exception_safety_test, erase) {
   faulty_run([] {
     container c;
     mass_insert(c, {6, 3, 8, 2, 5, 7, 10});
