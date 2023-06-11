@@ -599,10 +599,10 @@ TEST(correctness, upper_bound_empty) {
 TEST(fault_injection, non_throwing_default_ctor) {
   faulty_run([] {
     try {
-      container();
+      container c;
     } catch (...) {
       fault_injection_disable dg;
-      ADD_FAILURE();
+      ADD_FAILURE() << "default constructor should not throw";
       throw;
     }
   });
@@ -626,7 +626,7 @@ TEST(fault_injection, non_throwing_clear) {
       c.clear();
     } catch (...) {
       fault_injection_disable dg;
-      ADD_FAILURE();
+      ADD_FAILURE() << "clear() should not throw";
       throw;
     }
   });
