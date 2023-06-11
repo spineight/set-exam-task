@@ -13,8 +13,10 @@ void faulty_run(const std::function<void()>& f);
 
 struct fault_injection_disable {
   fault_injection_disable();
+
   fault_injection_disable(const fault_injection_disable&) = delete;
   fault_injection_disable& operator=(const fault_injection_disable&) = delete;
+
   ~fault_injection_disable();
 
 private:

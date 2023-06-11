@@ -1,72 +1,19 @@
 #include "element.h"
 #include "fault-injection.h"
 #include "set.h"
+#include "test-utils.h"
 
 #include <gtest/gtest.h>
 
-#include <sstream>
+namespace {
 
-using container = set<element>;
-
-template <typename T>
-const T& as_const(T& obj) {
-  return obj;
+void magic([[maybe_unused]] element& c) {
+  c = 42;
 }
 
-template <typename C, typename T>
-void mass_insert(C& c, std::initializer_list<T> elems) {
-  for (const T& e : elems) {
-    c.insert(e);
-  }
-}
+void magic(const element&) {}
 
-template <typename It, typename T>
-void expect_eq(It i1, It e1, std::initializer_list<T> elems) {
-  std::vector<typename std::remove_const<typename std::iterator_traits<It>::value_type>::type> vals;
-
-  for (; i1 != e1; ++i1) {
-    vals.push_back(*i1);
-  }
-
-  if (!std::equal(vals.begin(), vals.end(), elems.begin(), elems.end())) {
-    std::stringstream ss;
-    ss << '{';
-
-    bool add_comma = false;
-    for (const auto& e : vals) {
-      if (add_comma) {
-        ss << ", ";
-      }
-      ss << e;
-      add_comma = true;
-    }
-
-    ss << "} != {";
-
-    add_comma = false;
-    for (const auto& e : elems) {
-      if (add_comma) {
-        ss << ", ";
-      }
-      ss << e;
-      add_comma = true;
-    }
-
-    ss << "}";
-
-    ADD_FAILURE() << ss.str();
-  }
-}
-
-template <typename C, typename T>
-void expect_eq(const C& c, std::initializer_list<T> elems) {
-  expect_eq(c.begin(), c.end(), elems);
-}
-
-template <typename C, typename T>
-void expect_reverse_eq(const C& c, std::initializer_list<T> elems) {
-  expect_eq(c.rbegin(), c.rend(), elems);
-}
+} // namespace
 
 TEST(correctness, single_element) {
   element::no_new_instances_guard g;
@@ -148,7 +95,7 @@ TEST(correctness, reverse_iterators) {
 
   container c;
   mass_insert(c, {3, 1, 2, 4});
-  expect_reverse_eq(c, {4, 3, 2, 1});
+  expect_eq(reverse_view(c), {4, 3, 2, 1});
 
   EXPECT_EQ(4, *c.rbegin());
   EXPECT_EQ(3, *std::next(c.rbegin()));
@@ -435,15 +382,9 @@ TEST(correctness, iterator_deref_1) {
 
   container c;
   mass_insert(c, {1, 2, 3, 4, 5, 6});
-  container::iterator const i = c.find(4);
+  const container::iterator i = c.find(4);
   EXPECT_EQ(4, *i);
 }
-
-void magic(element& c) {
-  c = 42;
-}
-
-void magic(const element& c) {}
 
 TEST(correctness, iterator_deref_2) {
   element::no_new_instances_guard g;
@@ -461,7 +402,7 @@ TEST(correctness, iterator_deref_3) {
 
   container c;
   mass_insert(c, {1, 2, 3, 4, 5, 6});
-  container::iterator const i = c.find(4);
+  const container::iterator i = c.find(4);
   magic(*i.operator->());
   expect_eq(c, {1, 2, 3, 4, 5, 6});
 }
@@ -671,8 +612,8 @@ TEST(fault_injection, copy_ctor) {
   faulty_run([] {
     container c;
     mass_insert(c, {3, 2, 4, 1});
+
     container c2 = c;
-    fault_injection_disable dg;
     expect_eq(c, {1, 2, 3, 4});
   });
 }
@@ -695,18 +636,12 @@ TEST(fault_injection, assignment_operator) {
   faulty_run([] {
     container c;
     mass_insert(c, {3, 2, 4, 1});
+
     container c2;
     mass_insert(c2, {8, 7, 2, 14});
 
-    try {
-      c = c2;
-    } catch (...) {
-      fault_injection_disable dg;
-      expect_eq(c, {1, 2, 3, 4});
-      throw;
-    }
-
-    fault_injection_disable dg;
+    strong_exception_safety_guard sg(c);
+    c = c2;
     expect_eq(c, {2, 7, 8, 14});
   });
 }
@@ -716,14 +651,8 @@ TEST(fault_injection, insert) {
     container c;
     mass_insert(c, {3, 2, 4, 1});
 
-    try {
-      c.insert(5);
-    } catch (...) {
-      fault_injection_disable dg;
-      expect_eq(c, {1, 2, 3, 4});
-      throw;
-    }
-    fault_injection_disable dg;
+    strong_exception_safety_guard sg(c);
+    c.insert(5);
     expect_eq(c, {1, 2, 3, 4, 5});
   });
 }
@@ -733,19 +662,9 @@ TEST(fault_injection, erase) {
     container c;
     mass_insert(c, {6, 3, 8, 2, 5, 7, 10});
     element val = 6;
-    try {
-      c.erase(c.find(val));
-    } catch (...) {
-      fault_injection_disable dg;
-      expect_eq(c, {2, 3, 5, 6, 7, 8, 10});
-      throw;
-    }
-    fault_injection_disable dg;
+
+    strong_exception_safety_guard sg(c);
+    c.erase(c.find(val));
     expect_eq(c, {2, 3, 5, 7, 8, 10});
   });
-}
-
-int main(int argc, char* argv[]) {
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
 }
