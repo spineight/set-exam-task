@@ -919,6 +919,20 @@ TEST_F(performance_test, size) {
   }
 }
 
+TEST_F(performance_test, iteration) {
+  constexpr size_t N = 100'000;
+  constexpr size_t K = 5;
+
+  container c;
+  mass_insert_balanced(c, N);
+
+  for (size_t i = 0; i < K; ++i) {
+    for (container::iterator j = c.begin(); j != c.end(); ++j) {
+      [[maybe_unused]] volatile int escape = *j;
+    }
+  }
+}
+
 TEST_F(performance_test, swap) {
   constexpr size_t N = 100'000;
   constexpr size_t K = 1'000'000;
