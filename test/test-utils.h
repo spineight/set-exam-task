@@ -14,7 +14,7 @@
 template class set<element>;
 using container = set<element>;
 
-template <std::invocable<std::ostream&> F>
+template <typename F, typename = std::enable_if_t<std::is_invocable_v<F, std::ostream&>>>
 decltype(auto) operator<<(std::ostream& out, const F& f) {
   return f(out);
 }
@@ -26,9 +26,19 @@ void mass_insert(C& c, std::initializer_list<T> elems) {
   }
 }
 
+constexpr size_t bit_floor(size_t x) {
+  x |= (x >> 1);
+  x |= (x >> 2);
+  x |= (x >> 4);
+  x |= (x >> 8);
+  x |= (x >> 16);
+  x |= (x >> 32);
+  return x - (x >> 1);
+}
+
 template <typename C>
 void mass_insert_balanced(C& c, size_t count, int factor = 1) {
-  for (size_t i = std::bit_floor(count); i > 0; i /= 2) {
+  for (size_t i = bit_floor(count); i > 0; i /= 2) {
     for (size_t j = i; j <= count; j += i * 2) {
       c.insert(static_cast<int>(j) * factor);
     }

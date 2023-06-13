@@ -28,7 +28,7 @@ class performance_test : public base_test {};
 
 class random_test : public base_test {};
 
-void magic([[maybe_unused]] element& c) {
+[[maybe_unused]] void magic([[maybe_unused]] element& c) {
   c = 42;
 }
 
@@ -984,61 +984,67 @@ void run_random_test(random_test_config cfg) {
 } // namespace
 
 TEST_F(random_test, insert_find_scattered) {
-  run_random_test({
-      .seed = 1337,
-      .value_dist = std::uniform_int_distribution{1, 10'000},
-      .iterations = 10'000,
-      .p_insert = .5,
-      .p_erase = 0,
-  });
+  random_test_config cfg;
+  cfg.seed = 1337;
+  cfg.value_dist = std::uniform_int_distribution(1, 10'000);
+  cfg.iterations = 10'000;
+  cfg.p_insert = .5;
+  cfg.p_erase = 0;
+
+  run_random_test(cfg);
 }
 
 TEST_F(random_test, insert_find_dense) {
-  run_random_test({
-      .seed = 1338,
-      .value_dist = std::uniform_int_distribution{1, 500},
-      .iterations = 100'000,
-      .p_insert = .5,
-      .p_erase = 0,
-  });
+  random_test_config cfg;
+  cfg.seed = 1338;
+  cfg.value_dist = std::uniform_int_distribution(1, 500);
+  cfg.iterations = 100'000;
+  cfg.p_insert = .5;
+  cfg.p_erase = 0;
+
+  run_random_test(cfg);
 }
 
 TEST_F(random_test, insert_erase_find_scattered) {
-  run_random_test({
-      .seed = 1339,
-      .value_dist = std::uniform_int_distribution{1, 10'000},
-      .iterations = 10'000,
-      .p_insert = .4,
-      .p_erase = .2,
-  });
+  random_test_config cfg;
+  cfg.seed = 1339;
+  cfg.value_dist = std::uniform_int_distribution(1, 10'000);
+  cfg.iterations = 10'000;
+  cfg.p_insert = .4;
+  cfg.p_erase = .2;
+
+  run_random_test(cfg);
 }
 
 TEST_F(random_test, insert_erase_find_dense) {
-  run_random_test({
-      .seed = 1340,
-      .value_dist = std::uniform_int_distribution{1, 500},
-      .iterations = 100'000,
-      .p_insert = .4,
-      .p_erase = .2,
-  });
+  random_test_config cfg;
+  cfg.seed = 1340;
+  cfg.value_dist = std::uniform_int_distribution(1, 500);
+  cfg.iterations = 100'000;
+  cfg.p_insert = .4;
+  cfg.p_erase = .2;
+
+  run_random_test(cfg);
 }
 
 TEST_F(random_test, insert_erase_find_scattered_2) {
-  run_random_test({
-      .seed = 1341,
-      .value_dist = std::uniform_int_distribution{1, 10'000},
-      .iterations = 10'000,
-      .p_insert = .01,
-      .p_erase = .7,
-  });
+  random_test_config cfg;
+  cfg.seed = 1341;
+  cfg.value_dist = std::uniform_int_distribution(1, 10'000);
+  cfg.iterations = 10'000;
+  cfg.p_insert = .01;
+  cfg.p_erase = .7;
+
+  run_random_test(cfg);
 }
 
 TEST_F(random_test, insert_erase_find_dense_2) {
-  run_random_test({
-      .seed = 1342,
-      .value_dist = std::uniform_int_distribution{1, 500},
-      .iterations = 100'000,
-      .p_insert = .01,
-      .p_erase = .7,
-  });
+  random_test_config cfg;
+  cfg.seed = 1342;
+  cfg.value_dist = std::uniform_int_distribution(1, 500);
+  cfg.iterations = 100'000;
+  cfg.p_insert = .01;
+  cfg.p_erase = .7;
+
+  run_random_test(cfg);
 }
