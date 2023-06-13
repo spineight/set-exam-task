@@ -6,6 +6,7 @@
 
 #include <gtest/gtest.h>
 
+#include <bit>
 #include <concepts>
 #include <initializer_list>
 #include <ostream>
@@ -13,7 +14,7 @@
 template class set<element>;
 using container = set<element>;
 
-template <typename F, typename = std::enable_if_t<std::is_invocable_v<F, std::ostream&>>>
+template <std::invocable<std::ostream&> F>
 decltype(auto) operator<<(std::ostream& out, const F& f) {
   return f(out);
 }
@@ -22,6 +23,15 @@ template <typename C, typename T>
 void mass_insert(C& c, std::initializer_list<T> elems) {
   for (const T& e : elems) {
     c.insert(e);
+  }
+}
+
+template <typename C>
+void mass_insert_balanced(C& c, size_t count, int factor = 1) {
+  for (size_t i = std::bit_floor(count); i > 0; i /= 2) {
+    for (size_t j = i; j <= count; j += i * 2) {
+      c.insert(static_cast<int>(j) * factor);
+    }
   }
 }
 

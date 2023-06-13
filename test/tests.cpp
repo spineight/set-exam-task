@@ -20,6 +20,8 @@ class correctness_test : public base_test {};
 
 class exception_safety_test : public base_test {};
 
+class performance_test : public base_test {};
+
 void magic([[maybe_unused]] element& c) {
   c = 42;
 }
@@ -897,4 +899,31 @@ TEST_F(exception_safety_test, erase) {
     c.erase(c.find(val));
     expect_eq(c, {2, 3, 5, 7, 8, 10});
   });
+}
+
+TEST_F(performance_test, size) {
+  constexpr size_t N = 100'000;
+  constexpr size_t K = 1'000'000;
+
+  container c;
+  mass_insert_balanced(c, N);
+
+  for (size_t i = 0; i < K; ++i) {
+    EXPECT_EQ(N, c.size());
+  }
+}
+
+TEST_F(performance_test, swap) {
+  constexpr size_t N = 100'000;
+  constexpr size_t K = 1'000'000;
+
+  container c1;
+  container c2;
+
+  mass_insert_balanced(c1, N);
+  mass_insert_balanced(c2, N, -1);
+
+  for (size_t i = 0; i < K; ++i) {
+    swap(c1, c2);
+  }
 }
