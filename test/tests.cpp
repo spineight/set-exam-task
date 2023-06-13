@@ -5,6 +5,10 @@
 
 #include <gtest/gtest.h>
 
+#include <iterator>
+#include <random>
+#include <type_traits>
+
 static_assert(!std::is_constructible_v<container::iterator, std::nullptr_t>,
               "iterator should not be constructible from nullptr");
 static_assert(!std::is_constructible_v<container::const_iterator, std::nullptr_t>,
@@ -21,6 +25,8 @@ class correctness_test : public base_test {};
 class exception_safety_test : public base_test {};
 
 class performance_test : public base_test {};
+
+class random_test : public base_test {};
 
 void magic([[maybe_unused]] element& c) {
   c = 42;
@@ -926,4 +932,113 @@ TEST_F(performance_test, swap) {
   for (size_t i = 0; i < K; ++i) {
     swap(c1, c2);
   }
+}
+
+namespace {
+
+struct random_test_config {
+  std::mt19937::result_type seed = std::mt19937::default_seed;
+  std::uniform_int_distribution<int> value_dist;
+  size_t iterations;
+  double p_insert;
+  double p_erase;
+  double p_compare = .1;
+};
+
+void run_random_test(random_test_config cfg) {
+  std::mt19937 rng(cfg.seed);
+
+  std::uniform_real_distribution real_dist;
+
+  std::set<int> std_set;
+  container my_set;
+
+  for (size_t i = 0; i < cfg.iterations; ++i) {
+    double op = real_dist(rng);
+    int e = cfg.value_dist(rng);
+
+    if (op < cfg.p_insert) {
+      auto [std_it, std_ins] = std_set.insert(e);
+      auto [my_it, my_ins] = my_set.insert(e);
+      ASSERT_EQ(std_ins, my_ins);
+      ASSERT_EQ(*std_it, *my_it);
+    } else if (op < cfg.p_insert + cfg.p_erase) {
+      auto std_erase_result = std_set.erase(e);
+      auto my_erase_result = my_set.erase(e);
+      ASSERT_EQ(std_erase_result, my_erase_result);
+    } else {
+      auto std_it = std_set.find(e);
+      auto my_it = my_set.find(e);
+      ASSERT_EQ(std_it == std_set.end(), my_it == my_set.end());
+    }
+
+    ASSERT_EQ(std_set.empty(), my_set.empty());
+    ASSERT_EQ(std_set.size(), my_set.size());
+
+    if (real_dist(rng) < cfg.p_compare) {
+      ASSERT_TRUE(std::equal(std_set.begin(), std_set.end(), my_set.begin()));
+    }
+  }
+}
+
+} // namespace
+
+TEST_F(random_test, insert_find_scattered) {
+  run_random_test({
+      .seed = 1337,
+      .value_dist = std::uniform_int_distribution{1, 10'000},
+      .iterations = 10'000,
+      .p_insert = .5,
+      .p_erase = 0,
+  });
+}
+
+TEST_F(random_test, insert_find_dense) {
+  run_random_test({
+      .seed = 1338,
+      .value_dist = std::uniform_int_distribution{1, 500},
+      .iterations = 100'000,
+      .p_insert = .5,
+      .p_erase = 0,
+  });
+}
+
+TEST_F(random_test, insert_erase_find_scattered) {
+  run_random_test({
+      .seed = 1339,
+      .value_dist = std::uniform_int_distribution{1, 10'000},
+      .iterations = 10'000,
+      .p_insert = .4,
+      .p_erase = .2,
+  });
+}
+
+TEST_F(random_test, insert_erase_find_dense) {
+  run_random_test({
+      .seed = 1340,
+      .value_dist = std::uniform_int_distribution{1, 500},
+      .iterations = 100'000,
+      .p_insert = .4,
+      .p_erase = .2,
+  });
+}
+
+TEST_F(random_test, insert_erase_find_scattered_2) {
+  run_random_test({
+      .seed = 1341,
+      .value_dist = std::uniform_int_distribution{1, 10'000},
+      .iterations = 10'000,
+      .p_insert = .01,
+      .p_erase = .7,
+  });
+}
+
+TEST_F(random_test, insert_erase_find_dense_2) {
+  run_random_test({
+      .seed = 1342,
+      .value_dist = std::uniform_int_distribution{1, 500},
+      .iterations = 100'000,
+      .p_insert = .01,
+      .p_erase = .7,
+  });
 }
