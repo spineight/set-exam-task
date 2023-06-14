@@ -1,16 +1,29 @@
-#include <cassert>  // assert
-#include <iterator> // std::reverse_iterator
-#include <utility>  // std::pair, std::swap
+#pragma once
+
+#include <cassert>
+#include <iterator>
+#include <utility>
 
 template <typename T>
-struct set {
-  struct iterator;
-  using const_iterator = iterator;
+class set {
+public:
+  using value_type = T;
+
+  using reference = T&;
+  using const_reference = const T&;
+
+  using pointer = T*;
+  using const_pointer = const T*;
+
+  using iterator = void;
+  using const_iterator = void;
+
   using reverse_iterator = std::reverse_iterator<iterator>;
   using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
+public:
   // O(1) nothrow
-  set();
+  set() noexcept;
 
   // O(n) strong
   set(const set& other);
@@ -19,34 +32,37 @@ struct set {
   set& operator=(const set& other);
 
   // O(n) nothrow
-  ~set();
+  ~set() noexcept;
 
   // O(n) nothrow
-  void clear();
+  void clear() noexcept;
 
   // O(1) nothrow
-  bool empty();
+  size_t size() const noexcept;
+
+  // O(1) nothrow
+  bool empty() const noexcept;
 
   // nothrow
-  const_iterator begin() const;
+  const_iterator begin() const noexcept;
 
   // nothrow
-  const_iterator end() const;
+  const_iterator end() const noexcept;
 
   // nothrow
-  const_reverse_iterator rbegin() const;
+  const_reverse_iterator rbegin() const noexcept;
 
   // nothrow
-  const_reverse_iterator rend() const;
+  const_reverse_iterator rend() const noexcept;
 
   // O(h) strong
   std::pair<iterator, bool> insert(const T&);
 
   // O(h) nothrow
-  iterator erase(iterator);
+  iterator erase(const_iterator pos);
 
   // O(h) strong
-  const_iterator find(const T&) const;
+  size_t erase(const T&);
 
   // O(h) strong
   const_iterator lower_bound(const T&) const;
@@ -54,35 +70,9 @@ struct set {
   // O(h) strong
   const_iterator upper_bound(const T&) const;
 
-  // O(1) nothrow
-  void swap(set& other);
-};
-
-template <typename T>
-struct set<T>::iterator {
-  using iterator_category = std::bidirectional_iterator_tag;
-  using difference_type = std::ptrdiff_t;
-  using value_type = T const;
-  using pointer = const T*;
-  using reference = const T&;
-
-  iterator() = default;
+  // O(h) strong
+  const_iterator find(const T&) const;
 
   // O(1) nothrow
-  reference operator*() const;
-
-  // O(1) nothrow
-  pointer operator->() const;
-
-  // nothrow
-  iterator& operator++() &;
-
-  // nothrow
-  iterator operator++(int) &;
-
-  // nothrow
-  iterator& operator--() &;
-
-  // nothrow
-  iterator operator--(int) &;
+  friend void swap(set&, set&) noexcept;
 };
