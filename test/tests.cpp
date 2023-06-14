@@ -899,11 +899,23 @@ TEST_F(exception_safety_test, erase) {
   faulty_run([] {
     container c;
     mass_insert(c, {6, 3, 8, 2, 5, 7, 10});
-    element val = 6;
 
     strong_exception_safety_guard sg(c);
+    element val = 6;
     c.erase(c.find(val));
     expect_eq(c, {2, 3, 5, 7, 8, 10});
+  });
+}
+
+TEST_F(exception_safety_test, erase_2) {
+  faulty_run([] {
+    container c;
+    mass_insert(c, {6, 3, 8, 2, 5, 7, 10});
+
+    strong_exception_safety_guard sg(c);
+    element val = 5;
+    c.erase(c.find(val));
+    expect_eq(c, {2, 3, 6, 7, 8, 10});
   });
 }
 
