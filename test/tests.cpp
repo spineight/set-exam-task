@@ -977,6 +977,20 @@ TEST_F(performance_test, iteration) {
   }
 }
 
+TEST_F(performance_test, lower_bound) {
+  constexpr size_t N = 100'000;
+  constexpr size_t K = 200'000;
+
+  container c;
+  mass_insert_balanced(c, N);
+
+  for (size_t i = 0; i < K; ++i) {
+    constexpr int n = N;
+    EXPECT_EQ(c.begin(), c.lower_bound(1));
+    EXPECT_EQ(std::prev(c.end()), c.lower_bound(n));
+  }
+}
+
 TEST_F(performance_test, swap) {
   constexpr size_t N = 100'000;
   constexpr size_t K = 1'000'000;
