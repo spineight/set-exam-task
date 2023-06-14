@@ -6,8 +6,40 @@
 
 namespace {
 
+void* injected_allocate(size_t count) {
+  if (should_inject_fault()) {
+    throw std::bad_alloc();
+  }
+
+  void* ptr = malloc(count);
+  if (!ptr) {
+    throw std::bad_alloc();
+  }
+
+  return ptr;
+}
+
+void injected_deallocate(void* ptr) {
+  free(ptr);
+}
+
+template <typename T>
+struct fault_injection_allocator {
+  using value_type = T;
+
+  fault_injection_allocator() = default;
+
+  T* allocate(size_t count) {
+    return static_cast<T*>(injected_allocate(count * sizeof(T)));
+  }
+
+  void deallocate(void* ptr, size_t) {
+    injected_deallocate(ptr);
+  }
+};
+
 struct fault_injection_context {
-  std::vector<size_t> skip_ranges;
+  std::vector<size_t, fault_injection_allocator<size_t>> skip_ranges;
   size_t error_index = 0;
   size_t skip_index = 0;
   bool fault_registered = false;
@@ -104,43 +136,25 @@ fault_injection_disable::~fault_injection_disable() {
 }
 
 void* operator new(size_t count) {
-  if (should_inject_fault()) {
-    throw std::bad_alloc();
-  }
-
-  void* ptr = malloc(count);
-  if (!ptr) {
-    throw std::bad_alloc();
-  }
-
-  return ptr;
+  return injected_allocate(count);
 }
 
 void* operator new[](size_t count) {
-  if (should_inject_fault()) {
-    throw std::bad_alloc();
-  }
-
-  void* ptr = malloc(count);
-  if (!ptr) {
-    throw std::bad_alloc();
-  }
-
-  return ptr;
+  return injected_allocate(count);
 }
 
 void operator delete(void* ptr) noexcept {
-  free(ptr);
+  injected_deallocate(ptr);
 }
 
 void operator delete[](void* ptr) noexcept {
-  free(ptr);
+  injected_deallocate(ptr);
 }
 
 void operator delete(void* ptr, size_t) noexcept {
-  free(ptr);
+  injected_deallocate(ptr);
 }
 
 void operator delete[](void* ptr, size_t) noexcept {
-  free(ptr);
+  injected_deallocate(ptr);
 }
