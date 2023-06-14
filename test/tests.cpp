@@ -60,10 +60,22 @@ TEST_F(correctness_test, insert_descending) {
   expect_eq(c, {1, 2, 3, 4});
 }
 
-TEST_F(correctness_test, insert_shuffled) {
+TEST_F(correctness_test, insert_shuffled_1) {
   container c;
-  mass_insert(c, {8, 4, 2, 10, 5});
-  expect_eq(c, {2, 4, 5, 8, 10});
+  mass_insert(c, {2, 1, 3, 4});
+  expect_eq(c, {1, 2, 3, 4});
+}
+
+TEST_F(correctness_test, insert_shuffled_2) {
+  container c;
+  mass_insert(c, {4, 2, 1, 5, 3});
+  expect_eq(c, {1, 2, 3, 4, 5});
+}
+
+TEST_F(correctness_test, insert_shuffled_3) {
+  container c;
+  mass_insert(c, {2, 1, 5, 3, 4});
+  expect_eq(c, {1, 2, 3, 4, 5});
 }
 
 TEST_F(correctness_test, insert_twice) {
@@ -340,11 +352,11 @@ TEST_F(correctness_test, iterator_conversions) {
   EXPECT_FALSE(std::as_const(i2) != std::as_const(i2));
 }
 
-TEST_F(correctness_test, iterator_increment) {
-  container s;
-  mass_insert(s, {5, 3, 8, 1, 2, 6, 7, 10});
+TEST_F(correctness_test, iterator_increment_1) {
+  container c;
+  mass_insert(c, {5, 3, 8, 1, 2, 6, 7, 10});
 
-  container::iterator i = s.begin();
+  container::iterator i = c.begin();
   EXPECT_EQ(1, *i);
   EXPECT_EQ(2, *++i);
   EXPECT_EQ(3, *++i);
@@ -353,21 +365,21 @@ TEST_F(correctness_test, iterator_increment) {
   EXPECT_EQ(7, *++i);
   EXPECT_EQ(8, *++i);
   EXPECT_EQ(10, *++i);
-  EXPECT_EQ(s.end(), ++i);
+  EXPECT_EQ(c.end(), ++i);
 }
 
 TEST_F(correctness_test, iterator_increment_2) {
-  container s;
-  mass_insert(s, {5, 2, 10, 9, 12, 7});
+  container c;
+  mass_insert(c, {5, 2, 10, 9, 12, 7});
 
-  container::iterator i = s.begin();
+  container::iterator i = c.begin();
   EXPECT_EQ(2, *i);
   EXPECT_EQ(5, *++i);
   EXPECT_EQ(7, *++i);
   EXPECT_EQ(9, *++i);
   EXPECT_EQ(10, *++i);
   EXPECT_EQ(12, *++i);
-  EXPECT_EQ(s.end(), ++i);
+  EXPECT_EQ(c.end(), ++i);
 }
 
 TEST_F(correctness_test, iterator_increment_3) {
@@ -388,7 +400,7 @@ TEST_F(correctness_test, iterator_increment_3c) {
   EXPECT_EQ(6, *i);
 }
 
-TEST_F(correctness_test, iterator_decrement) {
+TEST_F(correctness_test, iterator_decrement_1) {
   container s;
   mass_insert(s, {5, 3, 8, 1, 2, 6, 7, 10});
 
@@ -721,7 +733,27 @@ TEST_F(correctness_test, erase_8) {
   EXPECT_FALSE(c.empty());
 }
 
-TEST_F(correctness_test, erase_it_return_value) {
+TEST_F(correctness_test, erase_it_return_value_1) {
+  container c;
+  mass_insert(c, {5, 2, 1, 3, 4});
+
+  container::iterator i = c.erase(c.find(3));
+  EXPECT_EQ(4, *i);
+  i = c.erase(i);
+  EXPECT_EQ(5, *i);
+}
+
+TEST_F(correctness_test, erase_it_return_value_2) {
+  container c;
+  mass_insert(c, {1, 4, 3, 2, 5});
+
+  container::iterator i = c.erase(c.find(3));
+  EXPECT_EQ(4, *i);
+  i = c.erase(i);
+  EXPECT_EQ(5, *i);
+}
+
+TEST_F(correctness_test, erase_it_return_value_3) {
   container c;
   mass_insert(c, {7, 4, 10, 1, 8, 7, 12});
 
@@ -731,7 +763,7 @@ TEST_F(correctness_test, erase_it_return_value) {
   EXPECT_EQ(10, *i);
 }
 
-TEST_F(correctness_test, erase_val_return_value) {
+TEST_F(correctness_test, erase_val_return_value_1) {
   container c;
   mass_insert(c, {7, 4, 10, 1, 8, 7, 12});
 
@@ -895,7 +927,7 @@ TEST_F(exception_safety_test, insert) {
   });
 }
 
-TEST_F(exception_safety_test, erase) {
+TEST_F(exception_safety_test, erase_1) {
   faulty_run([] {
     container c;
     mass_insert(c, {6, 3, 8, 2, 5, 7, 10});
@@ -1031,7 +1063,7 @@ TEST_F(random_test, insert_find_dense) {
   run_random_test(cfg);
 }
 
-TEST_F(random_test, insert_erase_find_scattered) {
+TEST_F(random_test, insert_erase_find_scattered_1) {
   random_test_config cfg;
   cfg.seed = 1339;
   cfg.value_dist = std::uniform_int_distribution(1, 10'000);
@@ -1042,7 +1074,7 @@ TEST_F(random_test, insert_erase_find_scattered) {
   run_random_test(cfg);
 }
 
-TEST_F(random_test, insert_erase_find_dense) {
+TEST_F(random_test, insert_erase_find_dense_1) {
   random_test_config cfg;
   cfg.seed = 1340;
   cfg.value_dist = std::uniform_int_distribution(1, 500);
