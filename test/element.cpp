@@ -5,131 +5,176 @@
 #include <gtest/gtest.h>
 
 element::element(int data) : data(data) {
-  fault_injection_disable dg;
-
-  auto p = instances.insert(this);
-  EXPECT_TRUE(p.second);
+  add_instance();
 }
 
 element::element(const element& other) : data(other.data) {
-  fault_injection_point();
-  fault_injection_disable dg;
-
-  auto p = instances.insert(this);
-  EXPECT_TRUE(p.second);
+  add_instance();
 }
 
 element::~element() {
-  size_t n = instances.erase(this);
-  EXPECT_EQ(1u, n);
+  delete_instance();
 }
 
 element& element::operator=(const element& c) {
+  assert_exists();
   fault_injection_point();
-  fault_injection_disable dg;
-
-  EXPECT_TRUE(instances.find(this) != instances.end());
 
   data = c.data;
   return *this;
 }
 
 element::operator int() const {
-  fault_injection_disable dg;
-
-  EXPECT_TRUE(instances.find(this) != instances.end());
+  assert_exists();
+  fault_injection_point();
 
   return data;
 }
 
 bool operator==(const element& a, const element& b) {
+  a.assert_exists();
+  b.assert_exists();
   fault_injection_point();
   return a.data == b.data;
 }
 
 bool operator!=(const element& a, const element& b) {
+  a.assert_exists();
+  b.assert_exists();
   fault_injection_point();
   return a.data != b.data;
 }
 
 bool operator<(const element& a, const element& b) {
+  a.assert_exists();
+  b.assert_exists();
   fault_injection_point();
   return a.data < b.data;
 }
 
 bool operator<=(const element& a, const element& b) {
+  a.assert_exists();
+  b.assert_exists();
   fault_injection_point();
   return a.data <= b.data;
 }
 
 bool operator>(const element& a, const element& b) {
+  a.assert_exists();
+  b.assert_exists();
   fault_injection_point();
   return a.data > b.data;
 }
 
 bool operator>=(const element& a, const element& b) {
+  a.assert_exists();
+  b.assert_exists();
   fault_injection_point();
   return a.data >= b.data;
 }
 
 bool operator==(const element& a, int b) {
+  a.assert_exists();
   fault_injection_point();
   return a.data == b;
 }
 
 bool operator!=(const element& a, int b) {
+  a.assert_exists();
   fault_injection_point();
   return a.data != b;
 }
 
 bool operator<(const element& a, int b) {
+  a.assert_exists();
   fault_injection_point();
   return a.data < b;
 }
 
 bool operator<=(const element& a, int b) {
+  a.assert_exists();
   fault_injection_point();
   return a.data <= b;
 }
 
 bool operator>(const element& a, int b) {
+  a.assert_exists();
   fault_injection_point();
   return a.data > b;
 }
 
 bool operator>=(const element& a, int b) {
+  a.assert_exists();
   fault_injection_point();
   return a.data >= b;
 }
 
 bool operator==(int a, const element& b) {
+  b.assert_exists();
   fault_injection_point();
   return a == b.data;
 }
 
 bool operator!=(int a, const element& b) {
+  b.assert_exists();
   fault_injection_point();
   return a != b.data;
 }
 
 bool operator<(int a, const element& b) {
+  b.assert_exists();
   fault_injection_point();
   return a < b.data;
 }
 
 bool operator<=(int a, const element& b) {
+  b.assert_exists();
   fault_injection_point();
   return a <= b.data;
 }
 
 bool operator>(int a, const element& b) {
+  b.assert_exists();
   fault_injection_point();
   return a > b.data;
 }
 
 bool operator>=(int a, const element& b) {
+  b.assert_exists();
   fault_injection_point();
   return a >= b.data;
+}
+
+void element::add_instance() {
+  fault_injection_point();
+  fault_injection_disable dg;
+  auto p = instances.insert(this);
+  if (!p.second) {
+    std::stringstream ss;
+    ss << "A new object is created at the address " << static_cast<void*>(this)
+       << " while the previous object at this address was not destroyed";
+    throw std::logic_error(ss.str());
+  }
+}
+
+void element::delete_instance() {
+  fault_injection_disable dg;
+  size_t erased = instances.erase(this);
+  if (erased != 1) {
+    std::stringstream ss;
+    ss << "Attempt of destroying non-existing object at address " << static_cast<void*>(this);
+    throw std::logic_error(ss.str());
+  }
+}
+
+void element::assert_exists() const {
+  fault_injection_disable dg;
+  bool exists = instances.find(this) != instances.end();
+  if (!exists) {
+    std::stringstream ss;
+    ss << "Accessing a non-existing object at address " << static_cast<const void*>(this);
+    throw std::logic_error(ss.str());
+  }
 }
 
 std::set<const element*> element::instances;

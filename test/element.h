@@ -13,9 +13,6 @@ struct element {
   element& operator=(const element& c);
   operator int() const;
 
-private:
-  int data;
-
   friend bool operator==(const element& a, const element& b);
   friend bool operator!=(const element& a, const element& b);
   friend bool operator<(const element& a, const element& b);
@@ -36,6 +33,14 @@ private:
   friend bool operator<=(int a, const element& b);
   friend bool operator>(int a, const element& b);
   friend bool operator>=(int a, const element& b);
+
+private:
+  void add_instance();
+  void delete_instance();
+  void assert_exists() const;
+
+private:
+  int data;
 
   static std::set<const element*> instances;
 };
