@@ -74,7 +74,7 @@ void expect_eq(const Actual& actual, const Expected& expected) {
       add_comma = true;
     }
 
-    out << '}';
+    out << "}\n";
   };
 }
 
